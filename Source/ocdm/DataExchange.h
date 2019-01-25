@@ -25,6 +25,7 @@ namespace OCDM {
             uint8_t IV[16];
             uint16_t SubLength;
             uint8_t Sub[2048];
+            bool InitWithLast15;
         };
 
     public:
@@ -52,6 +53,12 @@ namespace OCDM {
         }
         inline uint32_t ByteOffset() const {
             return(reinterpret_cast<const Administration*>(AdministrationBuffer())->ByteOffset);
+        }
+        inline void InitWithLast15(bool initWithLast15) {
+            reinterpret_cast<Administration*>(AdministrationBuffer())->InitWithLast15 = initWithLast15;
+        }
+        inline bool InitWithLast15() const {
+            return(reinterpret_cast<const Administration*>(AdministrationBuffer())->InitWithLast15);
         }
         void SetIV(const uint8_t ivDataLength, const uint8_t ivData[]) {
             Administration* admin = reinterpret_cast<Administration*>(AdministrationBuffer());

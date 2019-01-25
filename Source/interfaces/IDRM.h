@@ -299,7 +299,7 @@ public:
 
     virtual CDMi_RESULT InitDecryptContextByKid() = 0;
 
-    virtual CDMi_RESULT DecryptNetflix(const unsigned char* IVData, uint32_t IVDataSize, unsigned long long byteOffset, unsigned char data[], uint32_t size) = 0;
+    virtual CDMi_RESULT DecryptNetflix(const unsigned char* IVData, uint32_t IVDataSize, unsigned long long byteOffset, unsigned char data[], uint32_t size, bool initWithLast15) = 0;
 };
 
 // IMediaKeys defines the MediaKeys interface.
