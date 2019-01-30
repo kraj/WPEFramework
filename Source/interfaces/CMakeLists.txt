@@ -3,6 +3,7 @@ set(TargetInterfaces ${NAMESPACE}Interfaces)
 
 add_library(${TargetMarshalling} SHARED
         ProxyStubs.cpp
+        ProxyStubs_TestUtility.cpp
         )
 
 add_library(${TargetInterfaces} SHARED
@@ -40,6 +41,7 @@ set(PUBLIC_HEADERS
         IRtspClient.h
         IWebDriver.h
         IWebServer.h
+        ITestUtility.h
         Module.h
         )
 
