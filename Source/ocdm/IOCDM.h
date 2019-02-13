@@ -187,6 +187,8 @@ namespace OCDM {
         virtual OCDM_RESULT CreateSessionExt(
             const uint8_t drmHeader[],
             uint32_t drmHeaderLength,
+            ::OCDM::ISession::ICallback* callback,
+            std::string& sessionId,
             ISessionExt*& session) = 0;
 
         virtual std::string GetVersionExt() const = 0;
