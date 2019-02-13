@@ -198,6 +198,8 @@ namespace WPEFramework {
             // virtual OCDM_RESULT CreateSessionExt(
             //    const uint8_t drmHeader[],
             //    uint32_t drmHeaderLength,
+            //    ::OCDM::ISession::ICallback* callback,
+            //    std::string& sessionId,
             //    ISessionExt*& session) = 0;
             //
 
@@ -208,12 +210,26 @@ namespace WPEFramework {
             uint32_t drmHeaderLength = parameters.LockBuffer<uint32_t>(drmHeader);
             parameters.UnlockBuffer(drmHeaderLength);
 
+            OCDM::ISession::ICallback* implementation = parameters.Number<OCDM::ISession::ICallback*>();
+            OCDM::ISession::ICallback* proxy = nullptr;
+
+            if (implementation != nullptr) {
+                proxy = RPC::Administrator::Instance().CreateProxy<OCDM::ISession::ICallback>(channel,
+                    implementation,
+                    true, false);
+
+                ASSERT((proxy != nullptr) && "Failed to create proxy");
+            }
+
+            string sessionId;
+
             OCDM::ISessionExt* session = nullptr;
             OCDM::IAccessorOCDMExt* accessor =  message->Parameters().Implementation<OCDM::IAccessorOCDMExt>();
 
-            OCDM::OCDM_RESULT result = accessor->CreateSessionExt(drmHeader, drmHeaderLength, session);
+            OCDM::OCDM_RESULT result = accessor->CreateSessionExt(drmHeader, drmHeaderLength, proxy, sessionId, session);
 
             response.Number<OCDM::OCDM_RESULT>(result);
+            response.Text(sessionId);
             response.Number<OCDM::ISessionExt*>(session);
         },
         [](Core::ProxyType<Core::IPCChannel>& channel VARIABLE_IS_NOT_USED, Core::ProxyType<RPC::InvokeMessage>& message) {
@@ -909,6 +925,8 @@ namespace WPEFramework {
         virtual OCDM::OCDM_RESULT CreateSessionExt(
             const uint8_t drmHeader[],
             uint32_t drmHeaderLength,
+            ::OCDM::ISession::ICallback* callback,
+            std::string& sessionId,
             OCDM::ISessionExt*& session) override
         {
             IPCMessage newMessage(BaseClass::Message(1));
@@ -916,11 +934,14 @@ namespace WPEFramework {
 
             writer.Buffer(drmHeaderLength, drmHeader);
 
+            writer.Number(callback);
+
             Invoke(newMessage);
 
             RPC::Data::Frame::Reader reader(newMessage->Response().Reader());
 
             OCDM::OCDM_RESULT result = reader.Number<OCDM::OCDM_RESULT>();
+            sessionId = reader.Text();
 
             OCDM::ISessionExt* otherSidePtr = reader.Number<OCDM::ISessionExt*>();
             session = CreateProxy<OCDM::ISessionExt>(otherSidePtr);
