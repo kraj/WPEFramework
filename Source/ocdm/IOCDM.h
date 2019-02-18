@@ -182,8 +182,9 @@ namespace OCDM {
 
         enum { ID = 0x00000271 };
 
-        virtual time_t GetDrmSystemTime() const = 0;
+        virtual time_t GetDrmSystemTime(const std::string & keySystem) const = 0;
 
+        // TODO: remove
         virtual OCDM_RESULT CreateSessionExt(
             const uint8_t drmHeader[],
             uint32_t drmHeaderLength,
@@ -191,13 +192,14 @@ namespace OCDM {
             std::string& sessionId,
             ISessionExt*& session) = 0;
 
-        virtual std::string GetVersionExt() const = 0;
+        virtual std::string GetVersionExt(const std::string & keySystem) const = 0;
 
-        virtual uint32_t GetLdlSessionLimit() const = 0;
+        virtual uint32_t GetLdlSessionLimit(const std::string & keySystem) const = 0;
 
-        virtual OCDM_RESULT EnableSecureStop(bool enable) = 0;
+        virtual OCDM_RESULT EnableSecureStop(const std::string & keySystem, bool enable) = 0;
 
         virtual OCDM_RESULT CommitSecureStop(
+                const std::string & keySystem,
                 const unsigned char sessionID[],
                 uint32_t sessionIDLength,
                 const unsigned char serverResponse[],
