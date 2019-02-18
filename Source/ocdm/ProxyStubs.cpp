@@ -187,11 +187,14 @@ namespace WPEFramework {
     ProxyStub::MethodHandler AccesorOCDMExtStubMethods[] = {
         [](Core::ProxyType<Core::IPCChannel>& channel VARIABLE_IS_NOT_USED, Core::ProxyType<RPC::InvokeMessage>& message) {
             //
-            // virtual time_t GetDrmSystemTime() const = 0;
+            // virtual time_t GetDrmSystemTime(const std::string & keySystem) const = 0;
             //
+            RPC::Data::Frame::Reader parameters(message->Parameters().Reader());
             RPC::Data::Frame::Writer response(message->Response().Writer());
 
-            response.Number(message->Parameters().Implementation<OCDM::IAccessorOCDMExt>()->GetDrmSystemTime());
+            std::string keySystem = parameters.Text();
+
+            response.Number(message->Parameters().Implementation<OCDM::IAccessorOCDMExt>()->GetDrmSystemTime(keySystem));
         },
         [](Core::ProxyType<Core::IPCChannel>& channel VARIABLE_IS_NOT_USED, Core::ProxyType<RPC::InvokeMessage>& message) {
             //
@@ -234,40 +237,47 @@ namespace WPEFramework {
         },
         [](Core::ProxyType<Core::IPCChannel>& channel VARIABLE_IS_NOT_USED, Core::ProxyType<RPC::InvokeMessage>& message) {
             //
-            // virtual std::string GetVersionExt() const = 0;
+            // virtual std::string GetVersionExt(const std::string & keySystem) const = 0;
             //
 
+            RPC::Data::Frame::Reader parameters(message->Parameters().Reader());
             RPC::Data::Frame::Writer response(message->Response().Writer());
 
+            std::string keySystem = parameters.Text();
+
             OCDM::IAccessorOCDMExt* accessor =  message->Parameters().Implementation<OCDM::IAccessorOCDMExt>();
-            response.Text(accessor->GetVersionExt());
+            response.Text(accessor->GetVersionExt(keySystem));
         },
         [](Core::ProxyType<Core::IPCChannel>& channel VARIABLE_IS_NOT_USED, Core::ProxyType<RPC::InvokeMessage>& message) {
             //
             // virtual uint32_t GetLdlSessionLimit() const = 0;
             //
 
+            RPC::Data::Frame::Reader parameters(message->Parameters().Reader());
             RPC::Data::Frame::Writer response(message->Response().Writer());
+            std::string keySystem = parameters.Text();
 
             OCDM::IAccessorOCDMExt* accessor =  message->Parameters().Implementation<OCDM::IAccessorOCDMExt>();
-            response.Number(accessor->GetLdlSessionLimit());
+            response.Number(accessor->GetLdlSessionLimit(keySystem));
         },
         [](Core::ProxyType<Core::IPCChannel>& channel VARIABLE_IS_NOT_USED, Core::ProxyType<RPC::InvokeMessage>& message) {
             //
-            // virtual OCDM_RESULT EnableSecureStop(bool enable) = 0;
+            // virtual OCDM_RESULT EnableSecureStop(const std::string & keySystem, bool enable) = 0;
             //
 
             RPC::Data::Frame::Reader parameters(message->Parameters().Reader());
             RPC::Data::Frame::Writer response(message->Response().Writer());
 
+            std::string keySystem = parameters.Text();
             bool enable = parameters.Boolean();
 
             OCDM::IAccessorOCDMExt* accessor =  message->Parameters().Implementation<OCDM::IAccessorOCDMExt>();
-            response.Number(accessor->EnableSecureStop(enable));
+            response.Number(accessor->EnableSecureStop(keySystem, enable));
         },
         [](Core::ProxyType<Core::IPCChannel>& channel VARIABLE_IS_NOT_USED, Core::ProxyType<RPC::InvokeMessage>& message) {
             //
             // virtual OCDM_RESULT CommitSecureStop(
+            //                const std::string & keySystem,
             //                const unsigned char sessionID[],
             //                uint32_t sessionIDLength,
             //                const unsigned char serverResponse[],
@@ -277,6 +287,7 @@ namespace WPEFramework {
             RPC::Data::Frame::Reader parameters(message->Parameters().Reader());
             RPC::Data::Frame::Writer response(message->Response().Writer());
 
+            std::string keySystem = parameters.Text();
             const uint8_t* sessionID = nullptr;
             uint32_t sessionIDLength = parameters.LockBuffer<uint32_t>(sessionID);
             parameters.UnlockBuffer(sessionIDLength);
@@ -285,7 +296,7 @@ namespace WPEFramework {
             parameters.UnlockBuffer(serverResponseLength);
 
             OCDM::IAccessorOCDMExt* accessor =  message->Parameters().Implementation<OCDM::IAccessorOCDMExt>();
-            response.Number(accessor->CommitSecureStop(sessionID, sessionIDLength, serverResponse, serverResponseLength));
+            response.Number(accessor->CommitSecureStop(keySystem, sessionID, sessionIDLength, serverResponse, serverResponseLength));
         },
         [](Core::ProxyType<Core::IPCChannel>& channel VARIABLE_IS_NOT_USED, Core::ProxyType<RPC::InvokeMessage>& message) {
             //
@@ -912,8 +923,11 @@ namespace WPEFramework {
         }
 
     public:
-        virtual time_t GetDrmSystemTime() const override {
+        virtual time_t GetDrmSystemTime(const std::string & keySystem) const override {
             IPCMessage newMessage(BaseClass::Message(0));
+            RPC::Data::Frame::Writer writer(newMessage->Parameters().Writer());
+
+            writer.Text(keySystem);
 
             Invoke(newMessage);
 
@@ -949,10 +963,11 @@ namespace WPEFramework {
             return result;
         }
 
-        virtual std::string GetVersionExt() const override
+        virtual std::string GetVersionExt(const std::string & keySystem) const override
         {
             IPCMessage newMessage(BaseClass::Message(2));
             RPC::Data::Frame::Writer writer(newMessage->Parameters().Writer());
+            writer.Text(keySystem);
 
             Invoke(newMessage);
 
@@ -961,10 +976,11 @@ namespace WPEFramework {
             return reader.Text();
         }
 
-        virtual uint32_t GetLdlSessionLimit() const override
+        virtual uint32_t GetLdlSessionLimit(const std::string & keySystem) const override
         {
             IPCMessage newMessage(BaseClass::Message(3));
             RPC::Data::Frame::Writer writer(newMessage->Parameters().Writer());
+            writer.Text(keySystem);
 
             Invoke(newMessage);
 
@@ -973,11 +989,12 @@ namespace WPEFramework {
             return reader.Number<uint32_t>();
         }
 
-        virtual OCDM::OCDM_RESULT EnableSecureStop(bool enable) override
+        virtual OCDM::OCDM_RESULT EnableSecureStop(const std::string & keySystem, bool enable) override
         {
             IPCMessage newMessage(BaseClass::Message(4));
             RPC::Data::Frame::Writer writer(newMessage->Parameters().Writer());
 
+            writer.Text(keySystem);
             writer.Boolean(enable);
 
             Invoke(newMessage);
@@ -988,6 +1005,7 @@ namespace WPEFramework {
         }
 
         virtual OCDM::OCDM_RESULT CommitSecureStop(
+                const std::string & keySystem,
                 const unsigned char sessionID[],
                 uint32_t sessionIDLength,
                 const unsigned char serverResponse[],
@@ -996,6 +1014,7 @@ namespace WPEFramework {
             IPCMessage newMessage(BaseClass::Message(5));
             RPC::Data::Frame::Writer writer(newMessage->Parameters().Writer());
 
+            writer.Text(keySystem);
             writer.Buffer(sessionIDLength, sessionID);
             writer.Buffer(serverResponseLength, serverResponse);
 
