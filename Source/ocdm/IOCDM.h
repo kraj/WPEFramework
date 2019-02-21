@@ -81,7 +81,7 @@ namespace OCDM {
     // TODO: should derive from ISession?
     struct ISessionExt : virtual public WPEFramework::Core::IUnknown
     {
-        enum { ID = 0x00000272 };
+        enum { ID = WPEFramework::RPC::ID_SESSION_EXTENSION };
 
         enum LicenseTypeExt {
             Invalid = 0,
@@ -180,7 +180,7 @@ namespace OCDM {
 
     struct IAccessorOCDMExt : virtual public WPEFramework::Core::IUnknown {
 
-        enum { ID = 0x00000271 };
+        enum { ID = WPEFramework::RPC::ID_ACCESSOROCDM_EXTENSION };
 
         virtual time_t GetDrmSystemTime(const std::string & keySystem) const = 0;
 
